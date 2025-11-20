@@ -1,0 +1,10 @@
+#todo:
+# make sprites
+# add chicks (5?)
+# multithreading ? or . . idk we'll find out but they need to move individually
+# buttons
+# break timer
+# study timer (chicks sleep)
+# second timer (kill a chick if breaking too long)
+# chick death
+# guilt
