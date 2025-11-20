@@ -4,6 +4,7 @@ import sys
 import os
 import pygame as pg
 from chick import Chick
+from button import Button
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
@@ -60,7 +61,15 @@ def main():
     screen.blit(background, (0,0))
     pg.display.flip()
 
-    # Sprites / text
+    # Sprites / text / buttons
+    break_img = pg.image.load('data/start_break_button.png').convert_alpha()
+    end_break_img = pg.image.load('data/end_break_button.png').convert_alpha()
+    break_hover_img = pg.image.load('data/start_break_button_hover.png').convert_alpha()
+    end_break_hover_img = pg.image.load('data/end_break_button_hover.png').convert_alpha()
+
+    break_button = Button(100,200,break_img, break_hover_img, 3)
+    end_break_button = Button(300,200,end_break_img,end_break_hover_img,3)
+
     chick = Chick()
     allsprites = pg.sprite.RenderPlain(chick)
 
@@ -78,11 +87,6 @@ def main():
         # Maximum FPS
         clock.tick(60)
 
-        # Run events
-        for event in pg.event.get():
-            # If 'X' buttom pressed
-            if event.type == pg.QUIT:
-                going = False
         
         if focus == 's':
             countdown_max = STUDY_TIME
@@ -95,22 +99,32 @@ def main():
         timer_display["seconds"] = seconds_left % 60 
 
 
-        if seconds_left <= 0:
-            if focus == 's':
-                focus = 'b'
-                start_time = pg.time.get_ticks()
-            elif focus == 'b':
-                chick.kill()
-            
-
-        timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
+        
+        # Run events
+        for event in pg.event.get():
+            # If 'X' buttom pressed
+            if event.type == pg.QUIT:
+                going = False
 
         # Repaint and update
         allsprites.update()
 
         screen.blit(background, (0,0))
         allsprites.draw(screen)
-        screen.blit(timer_text, (300, 250))
+
+        if seconds_left <= 0:
+            if focus == 's':
+                if break_button.draw(screen):
+                    focus = 'b'
+                    start_time = pg.time.get_ticks()
+            elif focus == 'b':
+                chick.kill()
+        else:
+            timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
+            screen.blit(timer_text, (300, 250))
+
+
+        
         pg.display.flip()
     pg.quit()
 
