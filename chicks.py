@@ -43,7 +43,8 @@ def main():
     pg.display.set_caption("Pomodoro Chicks")
     pg.mouse.set_visible(True)
 
-    isPlayTime = True
+    # Focus - 's' for study, 'b' for break, 'o' for overtime
+    focus = 's'
 
     # Reusable timer variables (constants in seconds)
     STUDY_TIME = 60
@@ -83,8 +84,10 @@ def main():
             if event.type == pg.QUIT:
                 going = False
         
-        if isPlayTime:
+        if focus == 's':
             countdown_max = STUDY_TIME
+        elif focus == 'b':
+            countdown_max = PLAY_TIME
 
         # Update timer variables
         seconds_left = int(countdown_max - (pg.time.get_ticks() - start_time) / 1000)
@@ -93,7 +96,12 @@ def main():
 
 
         if seconds_left <= 0:
-            print("break time")
+            if focus == 's':
+                focus = 'b'
+                start_time = pg.time.get_ticks()
+            elif focus == 'b':
+                chick.kill()
+            
 
         timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
 

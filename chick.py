@@ -64,5 +64,6 @@ class Chick(pg.sprite.Sprite):
         self.alive = False
 
         #update sprite
+        self.image = pg.image.load("data/dead_chick.png").convert_alpha()
 
     
