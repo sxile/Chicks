@@ -21,12 +21,27 @@ def load_image(name, colorkey=None, scale=1):
         image.set_colorkey(colorkey, pg.RLEACCEL)
     return image, image.get_rect()
 
+def load_gif_frames(gif_path, scale):
+        frames = []
+        try:
+            img = pg.image.open(gif_path)
+            img = pg.transform.scale(img, scale)
+            for frame_num in range(img.n_frames):
+                img.seek(frame_num)
+                frame_surface = pg.image.fromstring(
+                    img.tobytes(), img.size, img.mode
+                ).convert_alpha() # or .convert() if no transparency
+                frames.append(frame_surface)
+        except Exception as e:
+            print(f"Error loading GIF: {e}")
+        return frames
+
 
 class Chick(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         #super().__init__()
-        self.image, self.rect = load_image("chick.png", 0)
+        self.image, self.rect = load_image("chick.png", (255,255,255), 1)
         self.alive = True
         self.pos = ((np.random.rand() * 400) + 200, (np.random.rand() * 300) + 100)
         screen = pg.display.get_surface()
@@ -62,7 +77,7 @@ class Chick(pg.sprite.Sprite):
     # Kill the chick
     def kill(self):
         self.alive = False
-
+        
         #update sprite
         self.image = pg.image.load("data/dead_chick.png").convert_alpha()
 
