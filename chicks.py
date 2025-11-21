@@ -5,24 +5,11 @@ import os
 import pygame as pg
 from chick import Chick
 from button import Button
+from spritesheet import SpriteSheet
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
-# def load_image(name, colorkey=None, scale=1):
-#     fullname = os.path.join(data_dir, name)
-#     image = pg.image.load(fullname)
-#     image = image.convert()
-
-#     size = image.get_size()
-#     size = (size[0] * scale, size[1] * scale)
-#     image = pg.transform.scale(image, size)
-
-#     if colorkey is not None:
-#         if colorkey == -1:
-#             colorkey = image.get_at((0, 0))
-#         image.set_colorkey(colorkey, pg.RLEACCEL)
-#     return image, image.get_rect()
 
 def load_sound(name):
     class NoneSound:
@@ -49,9 +36,9 @@ def main():
     extra_study_time = False
 
     # Reusable timer variables (constants in seconds)
-    STUDY_TIME = 10
-    PLAY_TIME = 10
-    OVERTIME = 10
+    STUDY_TIME = 8
+    PLAY_TIME = 8
+    OVERTIME = 2
     timer_display = {"minutes": 1, "seconds":0}
 
 
@@ -68,6 +55,7 @@ def main():
     end_break_img = pg.image.load('data/end_break_button.png').convert_alpha()
     break_hover_img = pg.image.load('data/start_break_button_hover.png').convert_alpha()
     end_break_hover_img = pg.image.load('data/end_break_button_hover.png').convert_alpha()
+    
 
     break_button = Button(100,200,break_img, break_hover_img, 3)
     end_break_button = Button(50,200,end_break_img,end_break_hover_img,3)

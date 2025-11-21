@@ -1,54 +1,53 @@
 import pygame as pg
 import numpy as np
 import os
+from spritesheet import SpriteSheet
 #from chicks import Chicks
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
-# Image loading -- should not be here, put in new file if possible?
-def load_image(name, colorkey=None, scale=1):
-    fullname = os.path.join(data_dir, name)
-    image = pg.image.load(fullname)
-    image = image.convert()
-
-    size = image.get_size()
-    size = (size[0] * scale, size[1] * scale)
-    image = pg.transform.scale(image, size)
-
-    if colorkey is not None:
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey, pg.RLEACCEL)
-    return image, image.get_rect()
-
-def load_gif_frames(gif_path, scale):
-        frames = []
-        try:
-            img = pg.image.open(gif_path)
-            img = pg.transform.scale(img, scale)
-            for frame_num in range(img.n_frames):
-                img.seek(frame_num)
-                frame_surface = pg.image.fromstring(
-                    img.tobytes(), img.size, img.mode
-                ).convert_alpha() # or .convert() if no transparency
-                frames.append(frame_surface)
-        except Exception as e:
-            print(f"Error loading GIF: {e}")
-        return frames
-
+BLACK = (0,0,0)
 
 class Chick(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         #super().__init__()
-        self.image, self.rect = load_image("chick.png", (255,255,255), 1)
+        
+        self.animation_timer = pg.time.get_ticks() + (np.random.rand() * 1000)
+        
+        standing_spritesheet_image = pg.image.load('data/chick_standing.png').convert_alpha()
+        walking_spritesheet_image = pg.image.load('data/chick_walking.png').convert_alpha()
+        death_spritesheet_image = pg.image.load('data/chick_death.png').convert_alpha()
+        
+        standing_spritesheet = SpriteSheet(standing_spritesheet_image)
+        walking_spritesheet = SpriteSheet(walking_spritesheet_image)
+        death_spritesheet = SpriteSheet(death_spritesheet_image)
+
+        standing_frames = [None,None]
+        self.walking_frames = [None,None,None,None,None,None]
+        self.death_frames = [None,None,None,None,None,None,
+                        None,None,None,None,None,None,
+                        None,None,None,None,None,None,
+                        None]
+
+
+        self.standing_frames = [standing_spritesheet.get_image(0, 25, 25, 4, BLACK),standing_spritesheet.get_image(1, 25, 25, 4, BLACK)]
+        for i in range(6):
+            self.walking_frames[i] = walking_spritesheet.get_image(i, 25, 25, 4, BLACK)
+
+        for i in range(19):
+            self.death_frames[i] = death_spritesheet.get_image(i, 25, 25, 4, BLACK)
+
+
+        self.image = self.standing_frames[0]
+        self.rect = self.image.get_rect()
         self.alive = True
         self.pos = ((np.random.rand() * 400) + 200, (np.random.rand() * 300) + 100)
-        screen = pg.display.get_surface()
-        self.area = screen.get_rect()
+        self.screen = pg.display.get_surface()
+        self.area = self.screen.get_rect()
         self.rect.topleft = self.pos
         self.movedir = 7
-        print(self.movedir)
+        #print(self.movedir)
 
     # Update Sprite, move if alive
     def update(self):
@@ -56,9 +55,25 @@ class Chick(pg.sprite.Sprite):
         if self.alive:
             if np.random.rand() < 0.01:
                 self.movedir = np.random.rand() * (2 * np.pi + 5) 
-                #print("attempting move")
+                #print("new direction!")
             if self.movedir < (2 * np.pi):
                 self.move()
+                #trying to move!
+            else:
+                if (self.animation_timer - pg.time.get_ticks()) % 1000 > 800:
+                    self.image = self.standing_frames[1]
+                else:
+                    self.image = self.standing_frames[0]
+        else:
+            frame = int((pg.time.get_ticks() - self.animation_timer) / 50)
+            #print(frame)
+
+            if frame < 19:
+                #print(frame)
+                self.image = self.death_frames[frame]
+            else:
+                self.image = self.death_frames[18]
+
     
     # Walk
     def move(self):
@@ -73,12 +88,19 @@ class Chick(pg.sprite.Sprite):
                 #print("reverse")
             newpos = self.rect.move((np.cos(self.movedir)),np.sin(self.movedir))
         self.rect = newpos
+        #print("trying to walk!")
+        self.image = self.walking_frames[int(((self.animation_timer - pg.time.get_ticks()) % 1000) / 167)]
 
     # Kill the chick
     def kill(self):
+
+        self.animation_timer = pg.time.get_ticks()
         self.alive = False
         
+        
+
         #update sprite
-        self.image = pg.image.load("data/dead_chick.png").convert_alpha()
+        # self.image = pg.image.load("data/dead_chick.png")
+        # self.image.set_colorkey((255,255,255), pg.RLEACCEL)
 
     

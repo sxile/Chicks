@@ -1,16 +1,22 @@
 #todo:
 # make sprites
 # - DONE ugly temporary chick sprite
-# - chick sprites: sleeping, awake, dead
+# - DONE 2/3 chick sprites: sleeping, awake, dead
 # - something for the timers to sit on
 # - button backgrounds ?
-# add chicks (5?)
+# DONE add chicks (5?)
 # *NVM* multithreading ? or . . idk we'll find out but they need to move individually
 # buttons
-# - 'start break' and 'return to study'
-# break timer 
-# study timer (chicks sleep)
+# DONE - 'start break' and 'return to study'
+# DONE break timer 
+# DONE (except they dont sleep) study timer (chicks sleep)
 # - chicks mostly sleep but maybe walk around a little?
-# third timer (kill a chick if breaking too long)
-# chick death
+# DONE third timer (kill a chick if breaking too long)
+# DONE chick death
 # guilt
+# - add gunshot sound
+# add background (grass)
+# add bigger visual / audio queue for timer's end
+# perhaps add explaination page (easy)
+
+# COMMENT COMMENT COMMENT (next time)
