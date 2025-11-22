@@ -66,11 +66,12 @@ class Chick(pg.sprite.Sprite):
                     self.image = self.standing_frames[0]
         else:
             frame = int((pg.time.get_ticks() - self.animation_timer) / 50)
-            #print(frame)
 
-            if frame < 19:
+            if frame >= 0 and frame < 19:
                 #print(frame)
                 self.image = self.death_frames[frame]
+            elif frame < 0:
+                self.image = self.standing_frames[0]
             else:
                 self.image = self.death_frames[18]
 
@@ -93,8 +94,8 @@ class Chick(pg.sprite.Sprite):
 
     # Kill the chick
     def kill(self):
-
-        self.animation_timer = pg.time.get_ticks()
+        self.image = self.standing_frames[0]
+        self.animation_timer = pg.time.get_ticks() + 2000
         self.alive = False
         
         

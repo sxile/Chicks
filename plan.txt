@@ -14,7 +14,7 @@
 # DONE third timer (kill a chick if breaking too long)
 # DONE chick death
 # guilt
-# - add gunshot sound
+# - DONE add gunshot sound
 # add background (grass)
 # add bigger visual / audio queue for timer's end
 # perhaps add explaination page (easy)
