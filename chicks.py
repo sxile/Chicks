@@ -43,15 +43,13 @@ def main():
     timer_display = {"minutes": 0, "seconds":0}
 
 
-    # Create The Background
-    background = pg.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((170, 238, 187))
+    # Sprites / text / buttons / sounds / background
+    background_image = pg.image.load("data/grass.png")
+    background_image = pg.transform.scale(background_image, (1280, 720))
 
-    screen.blit(background, (0,0))
+    screen.blit(background_image, (0,0))
     pg.display.flip()
 
-    # Sprites / text / buttons / sounds
     break_img = pg.image.load('data/start_break_button.png').convert_alpha()
     end_break_img = pg.image.load('data/end_break_button.png').convert_alpha()
     break_hover_img = pg.image.load('data/start_break_button_hover.png').convert_alpha()
@@ -96,7 +94,7 @@ def main():
         # Repaint and update
         allsprites.update()
 
-        screen.blit(background, (0,0))
+        screen.blit(background_image, (0,0))
         allsprites.draw(screen)
 
         # When timers run out, switch focus

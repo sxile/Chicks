@@ -6,13 +6,13 @@ from spritesheet import SpriteSheet
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "data")
 
-BLACK = (0,0,0)
+#BLACK = (0,0,0)
 
 class Chick(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
-        #super().__init__()
         
+        # Resources (spritesheets, timers)
         self.animation_timer = pg.time.get_ticks() + (np.random.rand() * 1000)
         
         standing_spritesheet_image = pg.image.load('data/chick_standing.png').convert_alpha()
@@ -31,14 +31,15 @@ class Chick(pg.sprite.Sprite):
                         None]
 
 
-        self.standing_frames = [standing_spritesheet.get_image(0, 25, 25, 4, BLACK),standing_spritesheet.get_image(1, 25, 25, 4, BLACK)]
+        self.standing_frames = [standing_spritesheet.get_image(0, 25, 28, 4),standing_spritesheet.get_image(1, 25, 28, 4)]
         for i in range(6):
-            self.walking_frames[i] = walking_spritesheet.get_image(i, 25, 25, 4, BLACK)
+            self.walking_frames[i] = walking_spritesheet.get_image(i, 25, 28, 4)
 
         for i in range(19):
-            self.death_frames[i] = death_spritesheet.get_image(i, 25, 25, 4, BLACK)
+            self.death_frames[i] = death_spritesheet.get_image(i, 25, 28, 4)
 
 
+        # Initialization
         self.image = self.standing_frames[0]
         self.rect = self.image.get_rect()
         self.alive = True
@@ -60,13 +61,15 @@ class Chick(pg.sprite.Sprite):
                 self.move()
                 #trying to move!
             else:
-                if (self.animation_timer - pg.time.get_ticks()) % 1000 > 800:
+                # Blinking / Standing timer
+                if (self.animation_timer - pg.time.get_ticks()) % 1000 > 890:
                     self.image = self.standing_frames[1]
                 else:
                     self.image = self.standing_frames[0]
         else:
             frame = int((pg.time.get_ticks() - self.animation_timer) / 50)
 
+            # Death Animation
             if frame >= 0 and frame < 19:
                 #print(frame)
                 self.image = self.death_frames[frame]

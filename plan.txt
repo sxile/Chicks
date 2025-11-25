@@ -19,4 +19,9 @@
 # add bigger visual / audio queue for timer's end
 # perhaps add explaination page (easy)
 
-# COMMENT COMMENT COMMENT (next time)
+# DONE - COMMENT COMMENT COMMENT (next time)
+
+
+# The laters
+# - blood pooling
+# Grass wave in the wind
