@@ -32,7 +32,10 @@ def main():
     pg.mouse.set_visible(True)
 
     # Focus - 's' for study, 'b' for break, 'o' for overtime
+    # Title Focus - 'm' for main, 'r' for rules.
+    
     focus = 's'
+    title_focus = 'm'
     extra_study_time = False
 
     # Reusable timer variables (constants in seconds)
@@ -47,8 +50,18 @@ def main():
     background_image = pg.image.load("data/grass.png")
     background_image = pg.transform.scale(background_image, (1280, 720))
 
+    title_card = pg.image.load("data/title_card.png").convert_alpha()
+    title_card = pg.transform.scale(title_card, (1240, 680))
+
     screen.blit(background_image, (0,0))
     pg.display.flip()
+
+    start_img = pg.image.load('data/start_game_button.png').convert_alpha()
+    start_hover_img = pg.image.load('data/start_game_button_hover.png')
+
+    rules_img = pg.image.load('data/rules_button.png').convert_alpha()
+    rules_hover_img = pg.image.load('data/rules_button_hover.png').convert_alpha()
+    rules_list_img = pg.image.load('data/rules.png')
 
     break_img = pg.image.load('data/start_break_button.png').convert_alpha()
     end_break_img = pg.image.load('data/end_break_button.png').convert_alpha()
@@ -57,8 +70,10 @@ def main():
     
     gunshot_sound = pg.mixer.Sound("data/gunshot.wav")
 
-    break_button = Button(100,200,break_img, break_hover_img, 3)
-    end_break_button = Button(50,200,end_break_img,end_break_hover_img,3)
+    start_game_button = Button(400,500,start_img,start_hover_img,6)
+    rules_button = Button(900, 500, rules_img, rules_hover_img, 6)
+    break_button = Button(20,20,break_img, break_hover_img, 6)
+    end_break_button = Button(20,20,end_break_img,end_break_hover_img,6)
 
     chick = [Chick(), Chick(), Chick(), Chick(), Chick()]
     chicks_left = 5
@@ -66,73 +81,98 @@ def main():
 
     font = pg.font.Font(None,50)
 
-    # Start timer
+    # timer
     clock = pg.time.Clock()
-    start_time = pg.time.get_ticks()
+    
 
     # Main loop condtion
+    atTitle = True
     going = True
+    isEnding = False
 
     #Main loop
     while going:
         # Maximum FPS
         clock.tick(60)
 
-        # Update timer variables
-        seconds_left = int(countdown_max - (pg.time.get_ticks() - start_time) / 1000)
-        timer_display["minutes"] = int(seconds_left / 60)
-        timer_display["seconds"] = seconds_left % 60 
-
-
-        
         # Run events
         for event in pg.event.get():
-            # If 'X' buttom pressed
+            # If 'X' button pressed
             if event.type == pg.QUIT:
                 going = False
 
-        # Repaint and update
-        allsprites.update()
-
         screen.blit(background_image, (0,0))
-        allsprites.draw(screen)
 
-        # When timers run out, switch focus
-        if seconds_left <= 0:
-            if focus == 's':
-                extra_study_time = True
-                if break_button.draw(screen):
-                    focus = 'b'
-                    countdown_max = BREAK_TIME
+        if atTitle:
+            screen.blit(title_card,(20,20))
+            if title_focus == 'm':
+                if start_game_button.draw(screen):
+                    atTitle = False
                     start_time = pg.time.get_ticks()
-                    extra_study_time = False
-            elif focus == 'b':
-                focus = 'o'
-                countdown_max = OVERTIME
-                start_time = pg.time.get_ticks()
-            elif focus == 'o':
-                focus = 's'
-                countdown_max = STUDY_TIME
-                pg.mixer.Sound.play(gunshot_sound)
-                chick[5 - chicks_left].kill()
-                chicks_left = chicks_left - 1
-                start_time = pg.time.get_ticks()
-                
+                if rules_button.draw(screen):
+                    title_focus = 'r'
+            elif title_focus == 'r':
+                screen.blit(rules_list_img,(400,400))
+                if rules_button.draw(screen):
+                    title_focus = 'm'
+        else:
 
-        # When gone over study or break time
-        if focus == 'o':
-                if end_break_button.draw(screen):
+            # Update timer variables
+            seconds_left = int(countdown_max - (pg.time.get_ticks() - start_time) / 1000)
+            timer_display["minutes"] = int(seconds_left / 60)
+            timer_display["seconds"] = seconds_left % 60 
+
+
+            
+            
+
+            # Repaint and update
+            allsprites.update()
+
+            
+            
+
+            # When timers run out, switch focus
+            if seconds_left <= 0:
+                if focus == 's':
+                    extra_study_time = True
+                    if break_button.draw(screen):
+                        focus = 'b'
+                        countdown_max = BREAK_TIME
+                        start_time = pg.time.get_ticks()
+                        extra_study_time = False
+                elif focus == 'b':
+                    focus = 'o'
+                    countdown_max = OVERTIME
+                    start_time = pg.time.get_ticks()
+                elif focus == 'o':
                     focus = 's'
                     countdown_max = STUDY_TIME
+                    pg.mixer.Sound.play(gunshot_sound)
+                    chick[5 - chicks_left].kill()
+                    chicks_left = chicks_left - 1
                     start_time = pg.time.get_ticks()
-        elif not extra_study_time:
-            timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
-            screen.blit(timer_text, (300, 250))
+            
+            allsprites.draw(screen)
+                    
 
-        # End if there are no longer chicks to tend
-        if chicks_left == 0:
-            going = False
-        
+            # When gone over study or break time
+            if focus == 'o':
+                    if end_break_button.draw(screen):
+                        focus = 's'
+                        countdown_max = STUDY_TIME
+                        start_time = pg.time.get_ticks()
+            elif not extra_study_time:
+                timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
+                screen.blit(timer_text, (300, 250))
+
+            # End if there are no longer chicks to tend
+            if chicks_left == 0:
+                isEnding = True
+                endingtimer = pg.time.get_ticks()
+            if isEnding and (endingtimer - pg.time.get_ticks() / 1000) >= -2:
+                going = False
+            
         pg.display.flip()
     pg.quit()
 
