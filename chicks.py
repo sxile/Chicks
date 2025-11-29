@@ -1,6 +1,4 @@
 #pomodoro
-
-import sys
 import os
 import pygame as pg
 from chick import Chick
@@ -36,7 +34,9 @@ def main():
     
     focus = 's'
     title_focus = 'm'
+    rules_read = False
     extra_study_time = False
+
 
     # Reusable timer variables (constants in seconds)
     STUDY_TIME = 8
@@ -61,6 +61,8 @@ def main():
 
     rules_img = pg.image.load('data/rules_button.png').convert_alpha()
     rules_hover_img = pg.image.load('data/rules_button_hover.png').convert_alpha()
+    back_img = pg.image.load('data/back_button.png').convert_alpha()
+    back_hover_img = pg.image.load('data/back_button_hover.png').convert_alpha()
     rules_list_img = pg.image.load('data/rules.png')
 
     break_img = pg.image.load('data/start_break_button.png').convert_alpha()
@@ -72,6 +74,7 @@ def main():
 
     start_game_button = Button(400,500,start_img,start_hover_img,6)
     rules_button = Button(900, 500, rules_img, rules_hover_img, 6)
+    back_button = Button(900, 500, back_img, back_hover_img, 6)
     break_button = Button(20,20,break_img, break_hover_img, 6)
     end_break_button = Button(20,20,end_break_img,end_break_hover_img,6)
 
@@ -82,8 +85,7 @@ def main():
     font = pg.font.Font(None,50)
 
     # timer
-    clock = pg.time.Clock()
-    
+    clock = pg.time.Clock() 
 
     # Main loop condtion
     atTitle = True
@@ -112,9 +114,11 @@ def main():
                 if rules_button.draw(screen):
                     title_focus = 'r'
             elif title_focus == 'r':
-                screen.blit(rules_list_img,(400,400))
-                if rules_button.draw(screen):
-                    title_focus = 'm'
+                screen.blit(rules_list_img,(370,450))
+                if back_button.draw(screen):
+                    if rules_read:
+                        title_focus = 'm'
+                    rules_read = True
         else:
 
             # Update timer variables
@@ -162,16 +166,19 @@ def main():
                         focus = 's'
                         countdown_max = STUDY_TIME
                         start_time = pg.time.get_ticks()
-            elif not extra_study_time:
+            elif not extra_study_time and chicks_left > 0:
                 timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
                 screen.blit(timer_text, (300, 250))
 
             # End if there are no longer chicks to tend
-            if chicks_left == 0:
-                isEnding = True
-                endingtimer = pg.time.get_ticks()
-            if isEnding and (endingtimer - pg.time.get_ticks() / 1000) >= -2:
+            
+            if isEnding and int((pg.time.get_ticks() - ending_timer) / 1000) == 5:
                 going = False
+            if chicks_left == 0:
+                if not isEnding:
+                    ending_timer = pg.time.get_ticks()
+                isEnding = True
+                
             
         pg.display.flip()
     pg.quit()
