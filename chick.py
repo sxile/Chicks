@@ -23,7 +23,7 @@ class Chick(pg.sprite.Sprite):
         walking_spritesheet = SpriteSheet(walking_spritesheet_image)
         death_spritesheet = SpriteSheet(death_spritesheet_image)
 
-        standing_frames = [None,None]
+        self.standing_frames = [None,None]
         self.walking_frames = [None,None,None,None,None,None]
         self.death_frames = [None,None,None,None,None,None,
                         None,None,None,None,None,None,
@@ -97,7 +97,11 @@ class Chick(pg.sprite.Sprite):
 
     # Kill the chick
     def kill(self):
-        self.image = self.standing_frames[0]
-        self.animation_timer = pg.time.get_ticks() + 2000
-        self.alive = False
+        if not self.alive:
+            return False
+        else:
+            self.image = self.standing_frames[0]
+            self.animation_timer = pg.time.get_ticks() + 2000
+            self.alive = False
+            return True
     

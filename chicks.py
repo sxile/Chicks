@@ -1,6 +1,7 @@
 #pomodoro
 import os
 import pygame as pg
+import numpy as np
 from chick import Chick
 from button import Button
 from spritesheet import SpriteSheet
@@ -20,18 +21,21 @@ def main():
     STUDY_TIME = 8
     BREAK_TIME = 8
     OVERTIME = 2
-    countdown_max = STUDY_TIME
-    timer_display = {"minutes": 0, "seconds":0}
-
 
     # BACKGROUND & TITLE CARD IMAGES #
-    background_image = pg.image.load("data/grass.png")
-    background_image = pg.transform.scale(background_image, (1280, 720))
+
+    background_spritesheet_image = pg.image.load("data/grass_spritesheet.png")
+    background_spritesheet = SpriteSheet(background_spritesheet_image)
+    background_frames = [None,None,None,None,None,
+                         None,None,None,None]
+    
+    for i in range(9):
+        background_frames[i] = background_spritesheet.get_image(i, 320, 180, 4)
 
     title_card = pg.image.load("data/title_card.png").convert_alpha()
     title_card = pg.transform.scale(title_card, (1240, 680))
 
-    screen.blit(background_image, (0,0))
+    screen.blit(background_frames[0], (0,0))
     screen.blit(title_card,(20,20))
     pg.display.flip()
 
@@ -68,6 +72,12 @@ def main():
     # CLOCK #
     clock = pg.time.Clock() 
 
+    # TIMERS #
+    countdown_max = STUDY_TIME
+    timer_display = {"minutes": 0, "seconds":0}
+    refresh_background_interval = 3
+    background_loop_timer = pg.time.get_ticks()
+
     # LOOP CONDITIONS #
     atTitle = True
     isEnding = False
@@ -92,7 +102,20 @@ def main():
                 going = False
 
         # Paint Background
-        screen.blit(background_image, (0,0))
+        if not refresh_background_interval == -1:
+            screen.blit(background_frames[0],(0,0))
+            if (pg.time.get_ticks() - background_loop_timer) / 1000 > refresh_background_interval:
+                i = 0
+                refresh_background_interval = -1
+                background_loop_timer = pg.time.get_ticks()
+                background_animation_speed = int(np.random.rand() * 50 + 150)
+        else:
+            i = int((pg.time.get_ticks() - background_loop_timer) / background_animation_speed)
+            if i < len(background_frames):
+                screen.blit(background_frames[i],(0,0))
+            else:
+                refresh_background_interval = int(np.random.rand() * 4) + 3
+                screen.blit(background_frames[0],(0,0))
 
         # Title Screen
         if atTitle:
@@ -137,13 +160,17 @@ def main():
                     focus = 's'
                     countdown_max = STUDY_TIME
                     pg.mixer.Sound.play(gunshot_sound)
-                    chick[5 - chicks_left].kill()
-                    chicks_left = chicks_left - 1
+                    for chicklet in chick:
+                        if chicklet.kill():
+                            chicks_left = chicks_left - 1
+                            break
                     start_time = pg.time.get_ticks()
             
             # Draw Sprites (Chicks)
+            chick.sort(key=lambda obj: obj.rect.y)
+            allsprites = pg.sprite.RenderPlain(chick)
             allsprites.draw(screen)
-                    
+            
 
             # When gone over study or break time
             if focus == 'o':
