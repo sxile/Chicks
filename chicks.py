@@ -5,22 +5,8 @@ from chick import Chick
 from button import Button
 from spritesheet import SpriteSheet
 
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, "data")
-
-
-def load_sound(name):
-    class NoneSound:
-        def play(self):
-            pass
-
-    if not pg.mixer or not pg.mixer.get_init():
-        return NoneSound()
-
-    fullname = os.path.join(data_dir, name)
-    sound = pg.mixer.Sound(fullname)
-
-    return sound
+# main_dir = os.path.split(os.path.abspath(__file__))[0]
+# data_dir = os.path.join(main_dir, "data")
 
 def main():
     # Basic Window Initialization
@@ -29,16 +15,8 @@ def main():
     pg.display.set_caption("Pomodoro Chicks")
     pg.mouse.set_visible(True)
 
-    # Focus - 's' for study, 'b' for break, 'o' for overtime
-    # Title Focus - 'm' for main, 'r' for rules.
-    
-    focus = 's'
-    title_focus = 'm'
-    rules_read = False
-    extra_study_time = False
 
-
-    # Reusable timer variables (constants in seconds)
+    # TIMER CONSTANTS #
     STUDY_TIME = 8
     BREAK_TIME = 8
     OVERTIME = 2
@@ -46,7 +24,7 @@ def main():
     timer_display = {"minutes": 0, "seconds":0}
 
 
-    # Sprites / text / buttons / sounds / background
+    # BACKGROUND & TITLE CARD IMAGES #
     background_image = pg.image.load("data/grass.png")
     background_image = pg.transform.scale(background_image, (1280, 720))
 
@@ -54,24 +32,26 @@ def main():
     title_card = pg.transform.scale(title_card, (1240, 680))
 
     screen.blit(background_image, (0,0))
+    screen.blit(title_card,(20,20))
     pg.display.flip()
 
+    # BUTTON IMAGES #
     start_img = pg.image.load('data/start_game_button.png').convert_alpha()
     start_hover_img = pg.image.load('data/start_game_button_hover.png')
-
     rules_img = pg.image.load('data/rules_button.png').convert_alpha()
     rules_hover_img = pg.image.load('data/rules_button_hover.png').convert_alpha()
     back_img = pg.image.load('data/back_button.png').convert_alpha()
     back_hover_img = pg.image.load('data/back_button_hover.png').convert_alpha()
     rules_list_img = pg.image.load('data/rules.png')
-
     break_img = pg.image.load('data/start_break_button.png').convert_alpha()
     end_break_img = pg.image.load('data/end_break_button.png').convert_alpha()
     break_hover_img = pg.image.load('data/start_break_button_hover.png').convert_alpha()
     end_break_hover_img = pg.image.load('data/end_break_button_hover.png').convert_alpha()
     
+    # SOUNDS #
     gunshot_sound = pg.mixer.Sound("data/gunshot.wav")
 
+    # BUTTON & CHICK OBJECTS #
     start_game_button = Button(400,500,start_img,start_hover_img,6)
     rules_button = Button(900, 500, rules_img, rules_hover_img, 6)
     back_button = Button(900, 500, back_img, back_hover_img, 6)
@@ -82,29 +62,39 @@ def main():
     chicks_left = 5
     allsprites = pg.sprite.RenderPlain(chick)
 
+    # TEXT (needs to be replaced) #
     font = pg.font.Font(None,50)
 
-    # timer
+    # CLOCK #
     clock = pg.time.Clock() 
 
-    # Main loop condtion
+    # LOOP CONDITIONS #
     atTitle = True
-    going = True
     isEnding = False
+    going = True
+    rules_read = False
+    extra_study_time = False
+    #     Focus - 's' for study, 'b' for break, 'o' for overtime
+    focus = 's'
+    #     Title Focus - 'm' for main, 'r' for rules.
+    title_focus = 'm'
+
 
     #Main loop
     while going:
-        # Maximum FPS
+        #     Maximum FPS
         clock.tick(60)
 
-        # Run events
+        #     Run Events
         for event in pg.event.get():
             # If 'X' button pressed
             if event.type == pg.QUIT:
                 going = False
 
+        # Paint Background
         screen.blit(background_image, (0,0))
 
+        # Title Screen
         if atTitle:
             screen.blit(title_card,(20,20))
             if title_focus == 'm':
@@ -119,6 +109,7 @@ def main():
                     if rules_read:
                         title_focus = 'm'
                     rules_read = True
+        # Main Game
         else:
 
             # Update timer variables
@@ -126,15 +117,8 @@ def main():
             timer_display["minutes"] = int(seconds_left / 60)
             timer_display["seconds"] = seconds_left % 60 
 
-
-            
-            
-
-            # Repaint and update
+            # Update Sprites (Chicks)
             allsprites.update()
-
-            
-            
 
             # When timers run out, switch focus
             if seconds_left <= 0:
@@ -157,6 +141,7 @@ def main():
                     chicks_left = chicks_left - 1
                     start_time = pg.time.get_ticks()
             
+            # Draw Sprites (Chicks)
             allsprites.draw(screen)
                     
 
@@ -170,8 +155,7 @@ def main():
                 timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
                 screen.blit(timer_text, (300, 250))
 
-            # End if there are no longer chicks to tend
-            
+            # Countdown to end if there are no longer chicks to tend
             if isEnding and int((pg.time.get_ticks() - ending_timer) / 1000) == 5:
                 going = False
             if chicks_left == 0:
@@ -179,8 +163,8 @@ def main():
                     ending_timer = pg.time.get_ticks()
                 isEnding = True
                 
-            
         pg.display.flip()
+    # If not 'going', end
     pg.quit()
 
 if __name__ == "__main__":

@@ -100,11 +100,4 @@ class Chick(pg.sprite.Sprite):
         self.image = self.standing_frames[0]
         self.animation_timer = pg.time.get_ticks() + 2000
         self.alive = False
-        
-        
-
-        #update sprite
-        # self.image = pg.image.load("data/dead_chick.png")
-        # self.image.set_colorkey((255,255,255), pg.RLEACCEL)
-
     
