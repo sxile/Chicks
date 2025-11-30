@@ -40,6 +40,25 @@ def main():
     pg.display.flip()
 
     # BUTTON IMAGES #
+    zero = pg.image.load('data/0.png')
+    one = pg.image.load('data/1.png')
+    two = pg.image.load('data/2.png')
+    three = pg.image.load('data/3.png')
+    four = pg.image.load('data/4.png')
+    five = pg.image.load('data/5.png')
+    six = pg.image.load('data/6.png')
+    seven = pg.image.load('data/7.png')
+    eight= pg.image.load('data/8.png')
+    nine = pg.image.load('data/9.png')
+    colon = pg.image.load('data/colon.png')
+    num_imgs = [zero, one, two, three, four, 
+                five, six, seven, eight, nine,]
+    i=0
+    for img in num_imgs:
+        num_imgs[i] = pg.transform.scale(img,(40,80))
+        i = i+1
+    colon = pg.transform.scale(colon,(40,80))
+
     start_img = pg.image.load('data/start_game_button.png').convert_alpha()
     start_hover_img = pg.image.load('data/start_game_button_hover.png')
     rules_img = pg.image.load('data/rules_button.png').convert_alpha()
@@ -83,7 +102,6 @@ def main():
     isEnding = False
     going = True
     rules_read = False
-    extra_study_time = False
     #     Focus - 's' for study, 'b' for break, 'o' for overtime
     focus = 's'
     #     Title Focus - 'm' for main, 'r' for rules.
@@ -101,7 +119,8 @@ def main():
             if event.type == pg.QUIT:
                 going = False
 
-        # Paint Background
+        #     Paint Background
+        # If between animations
         if not refresh_background_interval == -1:
             screen.blit(background_frames[0],(0,0))
             if (pg.time.get_ticks() - background_loop_timer) / 1000 > refresh_background_interval:
@@ -109,6 +128,7 @@ def main():
                 refresh_background_interval = -1
                 background_loop_timer = pg.time.get_ticks()
                 background_animation_speed = int(np.random.rand() * 50 + 150)
+        # If animating
         else:
             i = int((pg.time.get_ticks() - background_loop_timer) / background_animation_speed)
             if i < len(background_frames):
@@ -117,7 +137,7 @@ def main():
                 refresh_background_interval = int(np.random.rand() * 4) + 3
                 screen.blit(background_frames[0],(0,0))
 
-        # Title Screen
+        #     Title Screen
         if atTitle:
             screen.blit(title_card,(20,20))
             if title_focus == 'm':
@@ -132,26 +152,24 @@ def main():
                     if rules_read:
                         title_focus = 'm'
                     rules_read = True
-        # Main Game
+        #     Main Game
         else:
 
-            # Update timer variables
+            #     Update timer variables
             seconds_left = int(countdown_max - (pg.time.get_ticks() - start_time) / 1000)
-            timer_display["minutes"] = int(seconds_left / 60)
-            timer_display["seconds"] = seconds_left % 60 
+            timer_display["minutes"] = int(seconds_left / 60) if int(seconds_left / 60) >= 0 else 0
+            timer_display["seconds"] = seconds_left % 60 if seconds_left >= 0 else 0 
 
-            # Update Sprites (Chicks)
+            #     Update Sprites (Chicks)
             allsprites.update()
 
-            # When timers run out, switch focus
+            #     When timers run out, switch focus
             if seconds_left <= 0:
                 if focus == 's':
-                    extra_study_time = True
                     if break_button.draw(screen):
                         focus = 'b'
                         countdown_max = BREAK_TIME
                         start_time = pg.time.get_ticks()
-                        extra_study_time = False
                 elif focus == 'b':
                     focus = 'o'
                     countdown_max = OVERTIME
@@ -166,11 +184,11 @@ def main():
                             break
                     start_time = pg.time.get_ticks()
             
-            # Draw Sprites (Chicks)
-            chick.sort(key=lambda obj: obj.rect.y)
-            allsprites = pg.sprite.RenderPlain(chick)
-            allsprites.draw(screen)
-            
+            tens_minutes = int(timer_display['minutes'] / 10)
+            ones_minutes = int(timer_display['minutes'] % 10)
+            tens_seconds = int(timer_display['seconds'] / 10)
+            ones_seconds = int(timer_display['seconds'] % 10)
+
 
             # When gone over study or break time
             if focus == 'o':
@@ -178,9 +196,24 @@ def main():
                         focus = 's'
                         countdown_max = STUDY_TIME
                         start_time = pg.time.get_ticks()
-            elif not extra_study_time and chicks_left > 0:
-                timer_text = font.render(f"Time remaining: {timer_display['minutes']}:{"0" if timer_display['seconds'] < 10 else ""}{timer_display['seconds']}", True, (255, 255, 255))
-                screen.blit(timer_text, (300, 250))
+                    tens_minutes = 0
+                    ones_minutes = 0
+                    tens_seconds = 0
+                    ones_seconds = 0
+            #elif chicks_left > 0:
+
+            
+            screen.blit(num_imgs[tens_minutes], (548, 300))
+            screen.blit(num_imgs[ones_minutes], (584, 300))
+            screen.blit(colon,(620,300))
+            screen.blit(num_imgs[tens_seconds], (656, 300))
+            screen.blit(num_imgs[ones_seconds], (692, 300))
+
+            #     Draw Sprites (Chicks)
+            chick.sort(key=lambda obj: obj.rect.y)
+            allsprites = pg.sprite.RenderPlain(chick)
+            allsprites.draw(screen)
+
 
             # Countdown to end if there are no longer chicks to tend
             if isEnding and int((pg.time.get_ticks() - ending_timer) / 1000) == 5:

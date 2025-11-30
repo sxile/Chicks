@@ -1,12 +1,10 @@
 import pygame as pg
 import numpy as np
-import os
+# import os
 from spritesheet import SpriteSheet
 #from chicks import Chicks
-main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, "data")
-
-#BLACK = (0,0,0)
+# main_dir = os.path.split(os.path.abspath(__file__))[0]
+# data_dir = os.path.join(main_dir, "data")
 
 class Chick(pg.sprite.Sprite):
     def __init__(self):
