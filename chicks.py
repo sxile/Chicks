@@ -53,10 +53,10 @@ def main():
     colon = pg.image.load('data/colon.png')
     num_imgs = [zero, one, two, three, four, 
                 five, six, seven, eight, nine,]
-    i=0
+    i = 0
     for img in num_imgs:
         num_imgs[i] = pg.transform.scale(img,(40,80))
-        i = i+1
+        i = i + 1
     colon = pg.transform.scale(colon,(40,80))
 
     start_img = pg.image.load('data/start_game_button.png').convert_alpha()
@@ -198,16 +198,6 @@ def main():
             tens_seconds = int(timer_display['seconds'] / 10)
             ones_seconds = int(timer_display['seconds'] % 10)
 
-            #     Paint Timer
-            screen.blit(num_imgs[tens_minutes], (548, 300))
-            screen.blit(num_imgs[ones_minutes], (584, 300))
-            screen.blit(colon,(620,300))
-            screen.blit(num_imgs[tens_seconds], (656, 300))
-            screen.blit(num_imgs[ones_seconds], (692, 300))
-
-            #     Update Sprites (Chicks)
-            allsprites.update(screen)
-
             # When gone over study or break time
             if focus == 'o':
                     if end_break_button.draw(screen):
@@ -218,7 +208,18 @@ def main():
                     ones_minutes = 0
                     tens_seconds = 0
                     ones_seconds = 0
-            #elif chicks_left > 0:
+
+            #     Paint Timer
+            screen.blit(num_imgs[tens_minutes], (548, 300))
+            screen.blit(num_imgs[ones_minutes], (584, 300))
+            screen.blit(colon,(620,300))
+            screen.blit(num_imgs[tens_seconds], (656, 300))
+            screen.blit(num_imgs[ones_seconds], (692, 300))
+
+            #     Update Sprites (Chicks)
+            allsprites.update(screen)
+
+            
 
             #     Draw Sprites (Chicks)
             all_chicks = chick + dead_chick
