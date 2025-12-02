@@ -110,7 +110,8 @@ class Chick(pg.sprite.Sprite):
         self.rect = newpos
         if self.inBlood and pg.time.get_ticks() - self.left_last_footprint > 400:
             self.left_last_footprint = pg.time.get_ticks()
-            self.footprints.append(Footprint(round((self.movedir % (2* np.pi)) / (np.pi / 3)), (self.rect.centerx - 20, self.rect.centery + 35)))
+            footprint_dir = round((self.movedir % (2* np.pi)) / (np.pi / 3)) if round((self.movedir % (2* np.pi)) / (np.pi / 3)) < 6 else 5
+            self.footprints.append(Footprint(footprint_dir, (self.rect.centerx - 20, self.rect.centery + 35)))
         #print("trying to walk!")
         self.image = self.walking_frames[int(((self.animation_timer - pg.time.get_ticks()) % 1000) / 167)]
 

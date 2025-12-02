@@ -167,8 +167,6 @@ def main():
                 for c in bloody_chicks:
                     c.standingInBlood()
 
-            #     Update Sprites (Chicks)
-            allsprites.update(screen)
 
             #     When timers run out, switch focus
             if seconds_left <= 0:
@@ -200,6 +198,15 @@ def main():
             tens_seconds = int(timer_display['seconds'] / 10)
             ones_seconds = int(timer_display['seconds'] % 10)
 
+            #     Paint Timer
+            screen.blit(num_imgs[tens_minutes], (548, 300))
+            screen.blit(num_imgs[ones_minutes], (584, 300))
+            screen.blit(colon,(620,300))
+            screen.blit(num_imgs[tens_seconds], (656, 300))
+            screen.blit(num_imgs[ones_seconds], (692, 300))
+
+            #     Update Sprites (Chicks)
+            allsprites.update(screen)
 
             # When gone over study or break time
             if focus == 'o':
@@ -212,13 +219,6 @@ def main():
                     tens_seconds = 0
                     ones_seconds = 0
             #elif chicks_left > 0:
-
-            #     Paint Timer
-            screen.blit(num_imgs[tens_minutes], (548, 300))
-            screen.blit(num_imgs[ones_minutes], (584, 300))
-            screen.blit(colon,(620,300))
-            screen.blit(num_imgs[tens_seconds], (656, 300))
-            screen.blit(num_imgs[ones_seconds], (692, 300))
 
             #     Draw Sprites (Chicks)
             all_chicks = chick + dead_chick
