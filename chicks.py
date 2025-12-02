@@ -21,6 +21,7 @@ def main():
     STUDY_TIME = 8
     BREAK_TIME = 8
     OVERTIME = 2
+    EXECUTION_TIME = 5
 
     # BACKGROUND & TITLE CARD IMAGES #
 
@@ -52,12 +53,16 @@ def main():
     nine = pg.image.load('data/9.png')
     colon = pg.image.load('data/colon.png')
     num_imgs = [zero, one, two, three, four, 
-                five, six, seven, eight, nine,]
-    i = 0
-    for img in num_imgs:
-        num_imgs[i] = pg.transform.scale(img,(40,80))
-        i = i + 1
-    colon = pg.transform.scale(colon,(40,80))
+                five, six, seven, eight, nine, 
+                colon]
+    corner_num_imgs = [zero, one, two, three, four, 
+                five, six, seven, eight, nine, 
+                colon]
+    
+    for i in range(11):
+        num_imgs[i] = pg.transform.scale(num_imgs[i],(40,80))
+        corner_num_imgs[i] = pg.transform.scale(num_imgs[i],(20,40))
+    
 
     start_img = pg.image.load('data/start_game_button.png').convert_alpha()
     start_hover_img = pg.image.load('data/start_game_button_hover.png')
@@ -104,7 +109,7 @@ def main():
     isEnding = False
     going = True
     rules_read = False
-    #     Focus - 's' for study, 'b' for break, 'o' for overtime
+    #     Focus - 's' for study, 'b' for break, 'o' for overtime, 'd' for chick execution
     focus = 's'
     #     Title Focus - 'm' for main, 'r' for rules.
     title_focus = 'm'
@@ -157,41 +162,53 @@ def main():
         #     Main Game
         else:
 
-            #     Update timer variables
+            # Update timer variables
             seconds_left = int(countdown_max - (pg.time.get_ticks() - start_time) / 1000)
             timer_display["minutes"] = int(seconds_left / 60) if int(seconds_left / 60) >= 0 else 0
             timer_display["seconds"] = seconds_left % 60 if seconds_left >= 0 else 0 
 
-            for bird in dead_chick:
-                bloody_chicks = pg.sprite.spritecollide(bird, chick, False)
-                for c in bloody_chicks:
-                    c.standingInBlood()
+            # Check if bird collides with dead bird
+            for dead_chicky in dead_chick:
+                for c in chick:
+                    if dead_chicky.hitbox.colliderect(c.hitbox):
+                        c.standingInBlood()
 
 
-            #     When timers run out, switch focus
+            # When timers run out, switch focus
             if seconds_left <= 0:
                 if focus == 's':
                     if break_button.draw(screen):
                         focus = 'b'
                         countdown_max = BREAK_TIME
+                        for c in chick:
+                            c.wake_up()
                         start_time = pg.time.get_ticks()
                 elif focus == 'b':
                     focus = 'o'
                     countdown_max = OVERTIME
                     start_time = pg.time.get_ticks()
                 elif focus == 'o':
-                    focus = 's'
-                    countdown_max = STUDY_TIME
+                    focus = 'd'
+                    countdown_max = EXECUTION_TIME
                     pg.mixer.Sound.play(gunshot_sound)
                     chick[0].kill()
-                    dead_chick.append(chick[0])
-                    del chick[0]
-                    chicks_left = chicks_left - 1
+                    
                     # for chicklet in chick:
                     #     if chicklet.kill():
                     #         chicks_left = chicks_left - 1
                     #         break
                     start_time = pg.time.get_ticks()
+                elif focus == 'd':
+                    focus = 's'
+                    countdown_max = STUDY_TIME
+                    start_time = pg.time.get_ticks()
+                    dead_chick.append(chick[0])
+                    del chick[0]
+                    chicks_left = chicks_left - 1
+
+            if countdown_max - seconds_left == 1 and focus == 'd':
+                for c in chick:
+                    c.start_nap_time()
             
             tens_minutes = int(timer_display['minutes'] / 10)
             ones_minutes = int(timer_display['minutes'] % 10)
@@ -199,20 +216,22 @@ def main():
             ones_seconds = int(timer_display['seconds'] % 10)
 
             # When gone over study or break time
-            if focus == 'o':
+            if focus == 'd' or focus == 'o':
+                if focus == 'o':
                     if end_break_button.draw(screen):
                         focus = 's'
                         countdown_max = STUDY_TIME
                         start_time = pg.time.get_ticks()
-                    tens_minutes = 0
-                    ones_minutes = 0
-                    tens_seconds = 0
-                    ones_seconds = 0
+                tens_minutes = 0
+                ones_minutes = 0
+                tens_seconds = 0
+                ones_seconds = 0
 
-            #     Paint Timer
+
+            #     Paint Main Timer
             screen.blit(num_imgs[tens_minutes], (548, 300))
             screen.blit(num_imgs[ones_minutes], (584, 300))
-            screen.blit(colon,(620,300))
+            screen.blit(num_imgs[10],(620,300))
             screen.blit(num_imgs[tens_seconds], (656, 300))
             screen.blit(num_imgs[ones_seconds], (692, 300))
 
@@ -228,6 +247,13 @@ def main():
             allsprites = pg.sprite.RenderPlain(all_chicks)
             allsprites.draw(screen)
 
+            #     Paint Secondary Timer 
+            if chicks_left < 5:
+                screen.blit(corner_num_imgs[tens_minutes], (1196, 0))
+                screen.blit(corner_num_imgs[ones_minutes], (1212, 0))
+                screen.blit(corner_num_imgs[10],(1228,0))
+                screen.blit(corner_num_imgs[tens_seconds], (1244, 0))
+                screen.blit(corner_num_imgs[ones_seconds], (1260, 0))
 
             # Countdown to end if there are no longer chicks to tend
             if isEnding and int((pg.time.get_ticks() - ending_timer) / 1000) == 5:
