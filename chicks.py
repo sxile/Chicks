@@ -82,6 +82,8 @@ def main():
     end_break_button = Button(20,20,end_break_img,end_break_hover_img,6)
 
     chick = [Chick(), Chick(), Chick(), Chick(), Chick()]
+    # chick = [Chick()]
+    dead_chick = []
     chicks_left = 5
     allsprites = pg.sprite.RenderPlain(chick)
 
@@ -160,8 +162,13 @@ def main():
             timer_display["minutes"] = int(seconds_left / 60) if int(seconds_left / 60) >= 0 else 0
             timer_display["seconds"] = seconds_left % 60 if seconds_left >= 0 else 0 
 
+            for bird in dead_chick:
+                bloody_chicks = pg.sprite.spritecollide(bird, chick, False)
+                for c in bloody_chicks:
+                    c.standingInBlood()
+
             #     Update Sprites (Chicks)
-            allsprites.update()
+            allsprites.update(screen)
 
             #     When timers run out, switch focus
             if seconds_left <= 0:
@@ -178,10 +185,14 @@ def main():
                     focus = 's'
                     countdown_max = STUDY_TIME
                     pg.mixer.Sound.play(gunshot_sound)
-                    for chicklet in chick:
-                        if chicklet.kill():
-                            chicks_left = chicks_left - 1
-                            break
+                    chick[0].kill()
+                    dead_chick.append(chick[0])
+                    del chick[0]
+                    chicks_left = chicks_left - 1
+                    # for chicklet in chick:
+                    #     if chicklet.kill():
+                    #         chicks_left = chicks_left - 1
+                    #         break
                     start_time = pg.time.get_ticks()
             
             tens_minutes = int(timer_display['minutes'] / 10)
@@ -202,7 +213,7 @@ def main():
                     ones_seconds = 0
             #elif chicks_left > 0:
 
-            
+            #     Paint Timer
             screen.blit(num_imgs[tens_minutes], (548, 300))
             screen.blit(num_imgs[ones_minutes], (584, 300))
             screen.blit(colon,(620,300))
@@ -210,8 +221,10 @@ def main():
             screen.blit(num_imgs[ones_seconds], (692, 300))
 
             #     Draw Sprites (Chicks)
-            chick.sort(key=lambda obj: obj.rect.y)
-            allsprites = pg.sprite.RenderPlain(chick)
+            all_chicks = chick + dead_chick
+            all_chicks.sort(key=lambda obj: obj.rect.y)
+
+            allsprites = pg.sprite.RenderPlain(all_chicks)
             allsprites.draw(screen)
 
 
