@@ -139,13 +139,13 @@ class Chick(pg.sprite.Sprite):
                 #print("reverse")
                 
             newpos = self.rect.move((np.cos(self.movedir)),np.sin(self.movedir))
+        # Update position & hitboxes
         self.rect = newpos
         self.hitbox = pg.rect.Rect(newpos.x + 30, newpos.y + 95, 40, 10)
         if self.inBlood and pg.time.get_ticks() - self.left_last_footprint > 400:
             self.left_last_footprint = pg.time.get_ticks()
             footprint_dir = round((self.movedir % (2* np.pi)) / (np.pi / 3)) if round((self.movedir % (2* np.pi)) / (np.pi / 3)) < 6 else 0
             self.footprints.append(Footprint(footprint_dir, (self.rect.centerx - 20, self.rect.centery + 35)))
-        #print("trying to walk!")
         self.image = self.walking_frames[int(((self.animation_timer - pg.time.get_ticks()) % 1000) / 167)]
         if self.movedir > np.pi / 2 and self.movedir < np.pi * 1.5:
             self.image = pg.transform.flip(self.image, True, False)
@@ -153,11 +153,13 @@ class Chick(pg.sprite.Sprite):
         else:
             self.facing_left = False
 
+    # Wake up chicks and prevent them from sleeping
     def wake_up(self):
         self.nap_time = False
         self.awake = True
         self.movedir = self.movedir - 0.5
 
+    # Allow chicks to sleep again
     def start_nap_time(self):
         self.nap_time = True
 

@@ -40,7 +40,7 @@ def main():
     screen.blit(title_card,(20,20))
     pg.display.flip()
 
-    # BUTTON IMAGES #
+    # NUMBER IMAGES #
     zero = pg.image.load('data/0.png')
     one = pg.image.load('data/1.png')
     two = pg.image.load('data/2.png')
@@ -64,6 +64,7 @@ def main():
         corner_num_imgs[i] = pg.transform.scale(num_imgs[i],(20,40))
     
 
+    # BUTTON IMAGES #
     start_img = pg.image.load('data/start_game_button.png').convert_alpha()
     start_hover_img = pg.image.load('data/start_game_button_hover.png')
     rules_img = pg.image.load('data/rules_button.png').convert_alpha()
@@ -87,13 +88,9 @@ def main():
     end_break_button = Button(20,20,end_break_img,end_break_hover_img,6)
 
     chick = [Chick(), Chick(), Chick(), Chick(), Chick()]
-    # chick = [Chick()]
     dead_chick = []
     chicks_left = 5
     allsprites = pg.sprite.RenderPlain(chick)
-
-    # TEXT (needs to be replaced) #
-    font = pg.font.Font(None,50)
 
     # CLOCK #
     clock = pg.time.Clock() 
@@ -147,12 +144,14 @@ def main():
         #     Title Screen
         if atTitle:
             screen.blit(title_card,(20,20))
+            # Main Screen
             if title_focus == 'm':
                 if start_game_button.draw(screen):
                     atTitle = False
                     start_time = pg.time.get_ticks()
                 if rules_button.draw(screen):
                     title_focus = 'r'
+            # Rules Screen
             elif title_focus == 'r':
                 screen.blit(rules_list_img,(370,450))
                 if back_button.draw(screen):
@@ -176,6 +175,7 @@ def main():
 
             # When timers run out, switch focus
             if seconds_left <= 0:
+                # Study to Break
                 if focus == 's':
                     if break_button.draw(screen):
                         focus = 'b'
@@ -183,21 +183,19 @@ def main():
                         for c in chick:
                             c.wake_up()
                         start_time = pg.time.get_ticks()
+                # Break to Overtime
                 elif focus == 'b':
                     focus = 'o'
                     countdown_max = OVERTIME
                     start_time = pg.time.get_ticks()
+                # Overtime to Chick Death
                 elif focus == 'o':
                     focus = 'd'
                     countdown_max = EXECUTION_TIME
                     pg.mixer.Sound.play(gunshot_sound)
                     chick[0].kill()
-                    
-                    # for chicklet in chick:
-                    #     if chicklet.kill():
-                    #         chicks_left = chicks_left - 1
-                    #         break
                     start_time = pg.time.get_ticks()
+                # Chick Death to Study Time
                 elif focus == 'd':
                     focus = 's'
                     countdown_max = STUDY_TIME
@@ -206,6 +204,7 @@ def main():
                     del chick[0]
                     chicks_left = chicks_left - 1
 
+            # Allow chicks to begin napping again
             if countdown_max - seconds_left == 1 and focus == 'd':
                 for c in chick:
                     c.start_nap_time()
